@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>System</RootNamespace>
     <AssemblyName>EnumLib</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -57,12 +57,13 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumExt.cs" />
     <Compile Include="EnumExtensions.Validation.cs" />
     <Compile Include="EnumExtensions.Flags.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="AmbiguousEnumException.cs" />
     <Compile Include="InvalidEnumPolicy.cs" />
-    <Compile Include="EnumExt.cs" />
+    <Compile Include="EnumExt`1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
