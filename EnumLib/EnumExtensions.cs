@@ -46,7 +46,7 @@ namespace System {
 			return enumType.GetCustomAttribute<FlagsAttribute>() != null;
 		}
 
-		private static bool IsDefined(ulong value, Type enumType) {
+		private static List<ulong> GetCachedValues(Type enumType) {
 			List<ulong> values = null;
 			if (!sValuesCache.TryGetValue(enumType, out values)) {
 				values = new List<ulong>();
@@ -55,7 +55,11 @@ namespace System {
 				}
 				sValuesCache[enumType] = values;
 			}
+			return values;
+		}
 
+		private static bool IsDefined(ulong value, Type enumType) {
+			List<ulong> values = GetCachedValues(enumType);
 			return values.Any(v => v == value);
 		}
 
@@ -68,15 +72,7 @@ namespace System {
 		}
 
 		private static bool AllFlagsValuesDefined(ulong value, Type enumType) {
-			List<ulong> values = null;
-			if (!sValuesCache.TryGetValue(enumType, out values)) {
-				values = new List<ulong>();
-				foreach (Enum v in Enum.GetValues(enumType)) {
-					values.Add(Convert.ToUInt64(v));
-				}
-				sValuesCache[enumType] = values;
-			}
-
+			List<ulong> values = GetCachedValues(enumType);
 			if (value == 0) {
 				return values.Any(v => v == 0);
 			}

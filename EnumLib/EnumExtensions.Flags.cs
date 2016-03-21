@@ -82,8 +82,7 @@ namespace System {
 			@this.ThrowIfInvalid(nameof(@this));
 			Type type = CheckType(@this, true);
 
-			ulong mask = Enum.GetValues(type).Cast<Enum>().
-				Select(v => Convert.ToUInt64(v)).
+			ulong mask = GetCachedValues(type).
 				Aggregate(0UL, (s, v) => s |= v);
 			return (Convert.ToUInt64(@this) & mask) == mask;
 		}
