@@ -62,6 +62,7 @@
     <Compile Include="EnumExtensions.Flags.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="AmbiguousEnumException.cs" />
+    <Compile Include="EnumMemberInfo.cs" />
     <Compile Include="InvalidEnumPolicy.cs" />
     <Compile Include="EnumExt`1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

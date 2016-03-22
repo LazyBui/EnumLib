@@ -97,7 +97,22 @@ namespace System {
 		}
 
 		/// <summary>
-		/// Returns the <see cref="System.ComponentModel.DescriptionAttribute"/> associated to an enum member if applicable.
+		/// Returns information relating to a specific enum value.
+		/// </summary>
+		/// <param name="value">The value to retrieve information for.</param>
+		/// <returns>Information relating to a specific enum value.</returns>
+		/// <exception cref="System.ArgumentException"></exception>
+		/// <exception cref="AmbiguousEnumException"></exception>
+		public static EnumMemberInfo GetInfo(TValue value) {
+			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
+			if (result.Count() > 1) throw new AmbiguousEnumException();
+			var member = result.First();
+			return new EnumMemberInfo(member.Name, member.Description, member.Attributes);
+		}
+
+		/// <summary>
+		/// Returns the <see cref="System.ComponentModel.DescriptionAttribute"/> text associated to an enum member if applicable.
 		/// </summary>
 		/// <param name="value">The enum value to retrieve a <see cref="System.ComponentModel.DescriptionAttribute"/> for.</param>
 		/// <returns>null if no <see cref="System.ComponentModel.DescriptionAttribute"/> is present on the enum member, the string value associated to it otherwise.</returns>
@@ -111,7 +126,7 @@ namespace System {
 		}
 
 		/// <summary>
-		/// Returns the <see cref="System.ComponentModel.DescriptionAttribute"/> associated to an enum member if applicable, otherwise, the enum member name as a string.
+		/// Returns the <see cref="System.ComponentModel.DescriptionAttribute"/> text associated to an enum member if applicable, otherwise, the enum member name as a string.
 		/// </summary>
 		/// <param name="value">The enum value to retrieve text for.</param>
 		/// <returns>The enum member name if no <see cref="System.ComponentModel.DescriptionAttribute"/> is present on the enum member, the string value associated to it otherwise.</returns>
