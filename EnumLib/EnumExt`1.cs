@@ -25,26 +25,42 @@ namespace System {
 			}
 		}
 
-		private static Lazy<IEnumerable<EnumValue>> sEnumValueCache =
-			new Lazy<IEnumerable<EnumValue>>(
-				() => {
-					Type enumType = typeof(TValue);
-					FieldInfo[] fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static);
+		#if NETFX_35_OR_LOWER
+		private sealed class EnumValueHolder {
+			public IEnumerable<EnumValue> Value { get; private set; }
 
-					var result = new List<EnumValue>();
-					for (int i = 0; i < fields.Length; i++) {
-						var field = fields[i];
-						result.Add(new EnumValue(field));
-					}
+			public EnumValueHolder(Func<IEnumerable<EnumValue>> func) {
+				if (func == null) throw new ArgumentNullException(nameof(func));
+				Value = func();
+			}
+		}
 
-					return result.AsReadOnly();
-				});
+		private static EnumValueHolder sEnumValueCache = null;
+		#else
+		private static Lazy<IEnumerable<EnumValue>> sEnumValueCache = new Lazy<IEnumerable<EnumValue>>(ProduceValues);
+		#endif
 
 		static EnumExt() {
 			Type type = typeof(TValue);
 			if (!type.IsEnum) throw new InvalidOperationException("Must be used with an enum type");
 			sIsFlagsType = EnumExtensions.IsFlagsType(type);
 			sUnderlying = Enum.GetUnderlyingType(type);
+			#if NETFX_35_OR_LOWER
+			sEnumValueCache = new EnumValueHolder(ProduceValues);
+			#endif
+		}
+
+		private static IEnumerable<EnumValue> ProduceValues() {
+			Type enumType = typeof(TValue);
+			FieldInfo[] fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+			var result = new List<EnumValue>();
+			for (int i = 0; i < fields.Length; i++) {
+				var field = fields[i];
+				result.Add(new EnumValue(field));
+			}
+
+			return result;
 		}
 
 		private static Type sUnderlying = null;
