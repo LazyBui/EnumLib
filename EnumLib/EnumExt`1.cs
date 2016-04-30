@@ -30,7 +30,7 @@ namespace System {
 			public IEnumerable<EnumValue> Value { get; private set; }
 
 			public EnumValueHolder(Func<IEnumerable<EnumValue>> func) {
-				if (func == null) throw new ArgumentNullException(nameof(func));
+				if (object.ReferenceEquals(func, null)) throw new ArgumentNullException(nameof(func));
 				Value = func();
 			}
 		}
@@ -74,6 +74,13 @@ namespace System {
 		}
 
 		/// <summary>
+		/// Throws if the specified enum is not a valid one for the type.
+		/// </summary>
+		public static void ThrowIfInvalid(TValue value, string name = null) {
+			if (!IsValidValue(value)) throw new ArgumentException("Must have a valid value", name);
+		}
+
+		/// <summary>
 		/// Retrieves the values of the constants in the specified enum.
 		/// </summary>
 		/// <returns>Values of the constants in the specified enum.</returns>
@@ -99,8 +106,8 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		/// <exception cref="System.FormatException"></exception>
 		public static string Format(TValue value, string format) {
-			if (format == null) throw new ArgumentNullException(nameof(format));
-			EnumExtensions.ThrowIfInvalid((Enum)(object)value);
+			if (object.ReferenceEquals(format, null)) throw new ArgumentNullException(nameof(format));
+			ThrowIfInvalid(value, nameof(value));
 			return Enum.Format(typeof(TValue), value, format);
 		}
 
@@ -653,7 +660,7 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		public static bool TryParse(string value, bool ignoreCase, InvalidEnumPolicy policy, out TValue result) {
 			policy.ThrowIfInvalid(nameof(policy));
-			if (value == null) throw new ArgumentNullException(nameof(value));
+			if (object.ReferenceEquals(value, null)) throw new ArgumentNullException(nameof(value));
 			value = value.Trim();
 			if (value.Length == 0) throw new ArgumentException("Must be non-blank", nameof(value));
 
@@ -1033,7 +1040,7 @@ namespace System {
 
 			if (value == 0) {
 				var noneValue = sEnumValueCache.Value.FirstOrDefault(v => v.Underlying == 0);
-				if (noneValue == null) {
+				if (object.ReferenceEquals(noneValue, null)) {
 					if (policy == InvalidEnumPolicy.Disallow) {
 						result = default(TValue);
 						return false;

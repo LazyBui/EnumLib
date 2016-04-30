@@ -21,6 +21,57 @@ namespace EnumLib.Tests {
 		}
 
 		[TestMethod]
+		public void ThrowIfInvalid() {
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleFlags>.ThrowIfInvalid(EnumSimpleFlags.BitOne));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumSimpleFlags>.ThrowIfInvalid(~EnumSimpleFlags.BitOne));
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleFlags>.ThrowIfInvalid(EnumSimpleFlags.None));
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleFlags>.ThrowIfInvalid((EnumSimpleFlags)(1 << 0)));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumSimpleFlags>.ThrowIfInvalid((EnumSimpleFlags)byte.MaxValue));
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleFlags>.ThrowIfInvalid(0));
+
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleDuplicateFlags>.ThrowIfInvalid(EnumSimpleDuplicateFlags.BitThree));
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleDuplicateFlags>.ThrowIfInvalid(EnumSimpleDuplicateFlags.BitAlsoThree));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumSimpleDuplicateFlags>.ThrowIfInvalid(~EnumSimpleDuplicateFlags.BitThree));
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleDuplicateFlags>.ThrowIfInvalid(EnumSimpleDuplicateFlags.None));
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleDuplicateFlags>.ThrowIfInvalid((EnumSimpleDuplicateFlags)(1 << 2 | 1 << 1)));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumSimpleDuplicateFlags>.ThrowIfInvalid((EnumSimpleDuplicateFlags)short.MaxValue));
+			Assert.DoesNotThrow(() => EnumExt<EnumSimpleDuplicateFlags>.ThrowIfInvalid(0));
+
+			Assert.DoesNotThrow(() => EnumExt<EnumVanilla>.ThrowIfInvalid(EnumVanilla.Three));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumVanilla>.ThrowIfInvalid((EnumVanilla)(-1)));
+			Assert.DoesNotThrow(() => EnumExt<EnumVanilla>.ThrowIfInvalid(EnumVanilla.None));
+			Assert.DoesNotThrow(() => EnumExt<EnumVanilla>.ThrowIfInvalid((EnumVanilla)1));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumVanilla>.ThrowIfInvalid((EnumVanilla)int.MinValue));
+			Assert.DoesNotThrow(() => EnumExt<EnumVanilla>.ThrowIfInvalid(0));
+
+			Assert.DoesNotThrow(() => EnumExt<EnumVanillaDuplicate>.ThrowIfInvalid(EnumVanillaDuplicate.One));
+			Assert.DoesNotThrow(() => EnumExt<EnumVanillaDuplicate>.ThrowIfInvalid(EnumVanillaDuplicate.AlsoOne));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumVanillaDuplicate>.ThrowIfInvalid((EnumVanillaDuplicate)(-1)));
+			Assert.DoesNotThrow(() => EnumExt<EnumVanillaDuplicate>.ThrowIfInvalid(EnumVanillaDuplicate.None));
+			Assert.DoesNotThrow(() => EnumExt<EnumVanillaDuplicate>.ThrowIfInvalid((EnumVanillaDuplicate)1));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumVanillaDuplicate>.ThrowIfInvalid((EnumVanillaDuplicate)int.MinValue));
+			Assert.DoesNotThrow(() => EnumExt<EnumVanillaDuplicate>.ThrowIfInvalid(0));
+
+			Assert.DoesNotThrow(() => EnumExt<EnumComboFlags>.ThrowIfInvalid(EnumComboFlags.BitsOneThree));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboFlags>.ThrowIfInvalid(EnumComboFlags.BitOne | (EnumComboFlags)(1 << 4)));
+			Assert.DoesNotThrow(() => EnumExt<EnumComboFlags>.ThrowIfInvalid(EnumComboFlags.BitsOneTwoThree));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboFlags>.ThrowIfInvalid(EnumComboFlags.BitsOneTwoThree | (EnumComboFlags)(1 << 4)));
+			Assert.DoesNotThrow(() => EnumExt<EnumComboFlags>.ThrowIfInvalid((EnumComboFlags)(1 << 0 | 1 << 2)));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboFlags>.ThrowIfInvalid((EnumComboFlags)(sbyte)(-1)));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboFlags>.ThrowIfInvalid(0));
+
+			Assert.DoesNotThrow(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid(EnumComboOnlyFlags.BitsOneFour));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid(EnumComboOnlyFlags.BitOne | (EnumComboOnlyFlags)(1 << 5)));
+			Assert.DoesNotThrow(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid(EnumComboOnlyFlags.BitsOneTwoFour));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid(EnumComboOnlyFlags.BitsOneTwoFour | (EnumComboOnlyFlags)(1 << 5)));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid((EnumComboOnlyFlags)(1 << 3)));
+			Assert.DoesNotThrow(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid((EnumComboOnlyFlags)(1 << 0 | 1 << 3)));
+			Assert.DoesNotThrow(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid((EnumComboOnlyFlags)(1 << 0 | 1 << 2)));
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid((EnumComboOnlyFlags)ushort.MaxValue));
+			Assert.DoesNotThrow(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid(0));			
+		}
+
+		[TestMethod]
 		public void GetValues() {
 			IEnumerable<EnumVanilla> resultVanilla = null;
 			var expectedVanilla = new[] {

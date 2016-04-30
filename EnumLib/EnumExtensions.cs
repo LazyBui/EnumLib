@@ -8,7 +8,7 @@ namespace System {
 		private static Dictionary<Type, List<ulong>> sValuesCache = new Dictionary<Type, List<ulong>>();
 
 		public static TInteger As<TInteger>(this Enum @this) where TInteger : struct {
-			if (@this == null) throw new ArgumentNullException(nameof(@this));
+			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			Type integerType = typeof(TInteger);
 			if (integerType == typeof(sbyte)) return (TInteger)(object)Convert.ToSByte(@this);
 			if (integerType == typeof(short)) return (TInteger)(object)Convert.ToInt16(@this);

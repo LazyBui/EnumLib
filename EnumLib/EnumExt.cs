@@ -9,6 +9,13 @@ using System.Reflection;
 namespace System {
 	public static class EnumExt {
 		/// <summary>
+		/// Throws if the specified enum is not a valid one for the type.
+		/// </summary>
+		public static void ThrowIfInvalid<TValue>(TValue value, string name = null) where TValue : struct, IComparable {
+			EnumExt<TValue>.ThrowIfInvalid(value, name: name);
+		}
+
+		/// <summary>
 		/// Converts the specified value of a specified enum to its equivalent string representation according to the specified format.
 		/// </summary>
 		/// <param name="value">The enum value to format.</param>
