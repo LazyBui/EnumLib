@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EnumExt.cs" />
+    <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="EnumExtensions.Validation.cs" />
     <Compile Include="EnumExtensions.Flags.cs" />

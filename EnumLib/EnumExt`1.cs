@@ -1130,5 +1130,13 @@ namespace System {
 
 			return remaining == 0;
 		}
+
+		/// <summary>
+		/// This is designed to allow things within this library to pre-validate types
+		/// For example, this allows an array of ints of size 0 to throw based on the type even though it wouldn't otherwise
+		/// </summary>
+		internal static void CheckType() {
+			// Intentionally blank
+		}
 	}
 }
