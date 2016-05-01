@@ -7,6 +7,15 @@ namespace System {
 	public static partial class EnumExtensions {
 		private static Dictionary<Type, List<ulong>> sValuesCache = new Dictionary<Type, List<ulong>>();
 
+		/// <summary>
+		/// Safely casts an enumeration value as any particular integer type.
+		/// </summary>
+		/// <param name="this">The enum value.</param>
+		/// <typeparam name="TInteger">Desired integer type.</typeparam>
+		/// <returns>A casted integer value based on the enumeration value.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.InvalidOperationException"></exception>
+		/// <exception cref="System.OverflowException"></exception>
 		public static TInteger As<TInteger>(this Enum @this) where TInteger : struct {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			Type integerType = typeof(TInteger);

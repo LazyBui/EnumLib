@@ -9,8 +9,11 @@ using System.Reflection;
 namespace System {
 	public static class EnumExt {
 		/// <summary>
-		/// Throws if the specified enum is not a valid one for the type.
+		/// Throws if the specified value of the specified enum is not a valid one for the type.
 		/// </summary>
+		/// <param name="value">The enum value to test.</param>
+		/// <param name="name">The formal name of the parameter to propagate in the exception.</param>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static void ThrowIfInvalid<TValue>(TValue value, string name = null) where TValue : struct, IComparable {
 			EnumExt<TValue>.ThrowIfInvalid(value, name: name);
 		}
@@ -170,6 +173,7 @@ namespace System {
 		/// <param name="value">The value to extract flags from.</param>
 		/// <returns>All of the applicable flags in a flags enum value.</returns>
 		/// <exception cref="System.ArgumentException"></exception>
+		/// <exception cref="System.InvalidOperationException"></exception>
 		public static IEnumerable<TValue> ExtractFlags<TValue>(TValue value) where TValue : struct, IComparable {
 			return EnumExt<TValue>.ExtractFlags(value);
 		}

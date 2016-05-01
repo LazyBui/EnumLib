@@ -21,12 +21,6 @@ namespace System {
 			if (!HasValidValue(@this)) throw new ArgumentException("Must have a valid value", name);
 		}
 
-		internal static void ThrowIfInvalid(this Enum @this, Type enumType, string name = null) {
-			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(name);
-			if (object.ReferenceEquals(enumType, null)) throw new ArgumentNullException(nameof(enumType));
-			if (!HasValidValue(@this, enumType)) throw new ArgumentException("Must have a valid value", name);
-		}
-
 		/// <summary>
 		/// Determines whether an enum value contains an invalid value.
 		/// For a non-<see cref="System.FlagsAttribute"/> enum, an invalid value is one that is not explicitly defined.
@@ -34,6 +28,7 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
 		public static bool HasValidValue(this Enum @this) {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			Type enumType = @this.GetType();
@@ -47,44 +42,12 @@ namespace System {
 			return Enum.IsDefined(enumType, @this);
 		}
 
-		internal static bool HasValidValue(sbyte value, Type enumType) {
-			return HasValidValue((ulong)value, enumType);
-		}
-
-		internal static bool HasValidValue(short value, Type enumType) {
-			return HasValidValue((ulong)value, enumType);
-		}
-
-		internal static bool HasValidValue(int value, Type enumType) {
-			return HasValidValue((ulong)value, enumType);
-		}
-
-		internal static bool HasValidValue(long value, Type enumType) {
-			return HasValidValue((ulong)value, enumType);
-		}
-
-		internal static bool HasValidValue(byte value, Type enumType) {
-			return HasValidValue((ulong)value, enumType);
-		}
-
-		internal static bool HasValidValue(ushort value, Type enumType) {
-			return HasValidValue((ulong)value, enumType);
-		}
-
-		internal static bool HasValidValue(uint value, Type enumType) {
-			return HasValidValue((ulong)value, enumType);
-		}
-
-		internal static bool HasValidValue(ulong value, Type enumType) {
-			if (HasFlags(enumType)) return AllFlagsValuesDefined(value, enumType);
-			return IsDefined(value, enumType);
-		}
-
 		/// <summary>
 		/// Determines whether a type is an enum type with the <see cref="System.FlagsAttribute"/>.
 		/// </summary>
 		/// <param name="this">The enum to test.</param>
 		/// <returns>true if the <see cref="System.Enum"/> has <see cref="FlagsAttribute"/>.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
 		public static bool IsFlagsType(this Enum @this) {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			return HasFlags(@this.GetType());
@@ -95,6 +58,8 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum type to test.</param>
 		/// <returns>true if the <see cref="System.Type"/> has <see cref="FlagsAttribute"/>.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool IsFlagsType(this Type @this) {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			if (!@this.IsEnum) throw new ArgumentException("Must be an enum type", nameof(@this));

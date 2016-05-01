@@ -17,5 +17,7 @@ namespace EnumLib.Tests {
 		Three,
 		[Description("Fourteen")]
 		Four,
+		[Description("Huge")]
+		Huge = 65536,
 	}
 }

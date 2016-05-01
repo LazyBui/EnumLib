@@ -43,6 +43,7 @@ namespace System {
 		static EnumExt() {
 			Type type = typeof(TValue);
 			if (!type.IsEnum) throw new InvalidOperationException("Must be used with an enum type");
+			sEnumType = type;
 			sIsFlagsType = EnumExtensions.IsFlagsType(type);
 			sUnderlying = Enum.GetUnderlyingType(type);
 			#if NETFX_35_OR_LOWER
@@ -51,8 +52,7 @@ namespace System {
 		}
 
 		private static IEnumerable<EnumValue> ProduceValues() {
-			Type enumType = typeof(TValue);
-			FieldInfo[] fields = enumType.GetFields(BindingFlags.Public | BindingFlags.Static);
+			FieldInfo[] fields = sEnumType.GetFields(BindingFlags.Public | BindingFlags.Static);
 
 			var result = new List<EnumValue>();
 			for (int i = 0; i < fields.Length; i++) {
@@ -63,19 +63,23 @@ namespace System {
 			return result;
 		}
 
+		private static Type sEnumType = null;
 		private static Type sUnderlying = null;
 		private static bool sIsFlagsType = false;
 		/// <summary>
 		/// Determines whether the generic type is an enum type with the <see cref="System.FlagsAttribute"/>.
 		/// </summary>
 		/// <returns>true if the <see cref="System.Enum"/> has <see cref="FlagsAttribute"/>, false otherwise.</returns>
-		public static bool IsFlagsType() {
-			return sIsFlagsType;
+		public static bool IsFlagsType {
+			get { return sIsFlagsType; }
 		}
 
 		/// <summary>
-		/// Throws if the specified enum is not a valid one for the type.
+		/// Throws if the specified value of the specified enum is not a valid one for the type.
 		/// </summary>
+		/// <param name="value">The enum value to test.</param>
+		/// <param name="name">The formal name of the parameter to propagate in the exception.</param>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static void ThrowIfInvalid(TValue value, string name = null) {
 			if (!IsValidValue(value)) throw new ArgumentException("Must have a valid value", name);
 		}
@@ -108,7 +112,7 @@ namespace System {
 		public static string Format(TValue value, string format) {
 			if (object.ReferenceEquals(format, null)) throw new ArgumentNullException(nameof(format));
 			ThrowIfInvalid(value, nameof(value));
-			return Enum.Format(typeof(TValue), value, format);
+			return Enum.Format(sEnumType, value, format);
 		}
 
 		/// <summary>
@@ -127,7 +131,7 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		/// <exception cref="AmbiguousEnumException"></exception>
 		public static EnumMemberInfo GetInfo(TValue value) {
-			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
 			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
 			if (result.Count() > 1) throw new AmbiguousEnumException();
 			var member = result.First();
@@ -142,7 +146,7 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		/// <exception cref="AmbiguousEnumException"></exception>
 		public static string GetDescription(TValue value) {
-			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
 			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
 			if (result.Count() > 1) throw new AmbiguousEnumException();
 			return result.First().Description;
@@ -156,7 +160,7 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		/// <exception cref="AmbiguousEnumException"></exception>
 		public static string GetText(TValue value) {
-			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
 			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
 			if (result.Count() > 1) throw new AmbiguousEnumException();
 			var member = result.First();
@@ -171,7 +175,7 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		/// <exception cref="AmbiguousEnumException"></exception>
 		public static string GetName(TValue value) {
-			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
 			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
 			if (result.Count() > 1) throw new AmbiguousEnumException();
 			return result.First().Name;
@@ -182,7 +186,7 @@ namespace System {
 		/// </summary>
 		/// <returns>All of the custom attributes on the enum type.</returns>
 		public static IEnumerable<Attribute> GetTypeAttributes() {
-			return typeof(TValue).GetCustomAttributes();
+			return sEnumType.GetCustomAttributes();
 		}
 
 		/// <summary>
@@ -190,7 +194,7 @@ namespace System {
 		/// </summary>
 		/// <returns>All of the custom attributes that match the specified attribute type on the enum type.</returns>
 		public static IEnumerable<TAttribute> GetTypeAttributes<TAttribute>() where TAttribute : Attribute {
-			return typeof(TValue).GetCustomAttributes<TAttribute>();
+			return sEnumType.GetCustomAttributes<TAttribute>();
 		}
 
 		/// <summary>
@@ -199,7 +203,7 @@ namespace System {
 		/// <returns>null if the specified attribute type is not found, the attribute value otherwise.</returns>
 		/// <exception cref="System.Reflection.AmbiguousMatchException"></exception>
 		public static TAttribute GetTypeAttribute<TAttribute>() where TAttribute : Attribute {
-			return typeof(TValue).GetCustomAttribute<TAttribute>();
+			return sEnumType.GetCustomAttribute<TAttribute>();
 		}
 
 		/// <summary>
@@ -210,7 +214,7 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		/// <exception cref="System.AmbiguousEnumException"></exception>
 		public static IEnumerable<Attribute> GetAttributes(TValue value) {
-			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
 			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
 			if (result.Count() > 1) throw new AmbiguousEnumException();
 			return result.First().Attributes.AsReadOnly();
@@ -224,7 +228,7 @@ namespace System {
 		/// <exception cref="System.ArgumentException"></exception>
 		/// <exception cref="System.AmbiguousEnumException"></exception>
 		public static IEnumerable<TAttribute> GetAttributes<TAttribute>(TValue value) where TAttribute : Attribute {
-			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
 			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
 			if (result.Count() > 1) throw new AmbiguousEnumException();
 			return result.First().Attributes.OfType<TAttribute>();
@@ -239,7 +243,7 @@ namespace System {
 		/// <exception cref="System.AmbiguousEnumException"></exception>
 		/// <exception cref="System.Reflection.AmbiguousMatchException"></exception>
 		public static TAttribute GetAttribute<TAttribute>(TValue value) where TAttribute : Attribute {
-			var result = sEnumValueCache.Value.Where(v => v.Value.CompareTo(value) == 0);
+			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
 			if (!result.Any()) throw new ArgumentException("Must have a valid value that resolves to a single enum member", nameof(value));
 			if (result.Count() > 1) throw new AmbiguousEnumException();
 			var attrs = result.First().Attributes.OfType<TAttribute>();
@@ -255,7 +259,13 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(TValue value) {
-			return EnumExtensions.HasValidValue((Enum)(object)value, typeof(TValue));
+			try {
+				ulong casted = Convert.ToUInt64(value);
+				if (IsFlagsType) return AllFlagsValuesDefined(casted);
+				return IsDefined(casted);
+			}
+			catch (OverflowException) { }
+			return false;
 		}
 
 		/// <summary>
@@ -265,7 +275,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is present in the enum's definition, false otherwise.</returns>
 		public static bool IsDefined(TValue value) {
-			return Enum.IsDefined(typeof(TValue), value);
+			return sEnumValueCache.Value.Any(v => v.Value.Equals(value));
 		}
 
 		/// <summary>
@@ -275,8 +285,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the value is present in the enum's definition, false otherwise.</returns>
 		public static bool IsDefined(sbyte value) {
-			ulong converted = (ulong)value;
-			return sEnumValueCache.Value.Any(v => v.Underlying == converted);
+			return IsDefined((long)value);
 		}
 
 		/// <summary>
@@ -286,8 +295,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the value is present in the enum's definition, false otherwise.</returns>
 		public static bool IsDefined(short value) {
-			ulong converted = (ulong)value;
-			return sEnumValueCache.Value.Any(v => v.Underlying == converted);
+			return IsDefined((long)value);
 		}
 
 		/// <summary>
@@ -297,8 +305,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the value is present in the enum's definition, false otherwise.</returns>
 		public static bool IsDefined(int value) {
-			ulong converted = (ulong)value;
-			return sEnumValueCache.Value.Any(v => v.Underlying == converted);
+			return IsDefined((long)value);
 		}
 
 		/// <summary>
@@ -308,8 +315,8 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the value is present in the enum's definition, false otherwise.</returns>
 		public static bool IsDefined(long value) {
-			ulong converted = (ulong)value;
-			return sEnumValueCache.Value.Any(v => v.Underlying == converted);
+			ulong casted = value.BitwiseCastUnsigned();
+			return sEnumValueCache.Value.Any(v => v.Underlying == casted);
 		}
 
 		/// <summary>
@@ -360,7 +367,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(sbyte value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			return IsValidValue((long)value);
 		}
 
 		/// <summary>
@@ -371,7 +378,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(short value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			return IsValidValue((long)value);
 		}
 
 		/// <summary>
@@ -382,7 +389,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(int value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			return IsValidValue((long)value);
 		}
 
 		/// <summary>
@@ -393,7 +400,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(long value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			return IsValidValue(value.BitwiseCastUnsigned());
 		}
 
 		/// <summary>
@@ -404,7 +411,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(byte value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			return IsValidValue((ulong)value);
 		}
 
 		/// <summary>
@@ -415,7 +422,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(ushort value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			return IsValidValue((ulong)value);
 		}
 
 		/// <summary>
@@ -426,7 +433,7 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(uint value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			return IsValidValue((ulong)value);
 		}
 
 		/// <summary>
@@ -437,7 +444,8 @@ namespace System {
 		/// <param name="value">The value to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(ulong value) {
-			return EnumExtensions.HasValidValue(value, typeof(TValue));
+			if (IsFlagsType) return AllFlagsValuesDefined(value);
+			return IsDefined(value);
 		}
 
 		/// <summary>
@@ -446,15 +454,18 @@ namespace System {
 		/// <param name="value">The value to extract flags from.</param>
 		/// <returns>All of the applicable flags in a flags enum value.</returns>
 		/// <exception cref="System.ArgumentException"></exception>
+		/// <exception cref="System.InvalidOperationException"></exception>
 		public static IEnumerable<TValue> ExtractFlags(TValue value) {
-			EnumExtensions.ThrowIfInvalid((Enum)(object)value);
+			ThrowIfInvalid(value, nameof(value));
 			EnsureFlagsType();
 
 			var result = new List<TValue>();
 			ulong test = Convert.ToUInt64(value);
-			foreach (var check in sEnumValueCache.Value) {
-				if (check.Underlying == 0) continue;
-				if ((test & check.Underlying) == check.Underlying) result.Add(check.Value);
+			if (test != 0) {
+				foreach (var check in sEnumValueCache.Value) {
+					if (check.Underlying == 0) continue;
+					if ((test & check.Underlying) == check.Underlying) result.Add(check.Value);
+				}
 			}
 			return result.AsReadOnly();
 		}
@@ -688,7 +699,7 @@ namespace System {
 					}
 
 					// We can either be sure that all values are allowed or we have a valid value by this point
-					object enumValue = Enum.ToObject(typeof(TValue), temp);
+					object enumValue = Enum.ToObject(sEnumType, temp);
 
 					// It doesn't matter what we have at this point, it's valid based on the rules
 					result = (TValue)enumValue;
@@ -1009,7 +1020,7 @@ namespace System {
 
 		private static bool TryCast(ulong value, Type providedType, InvalidEnumPolicy policy, out TValue result) {
 			policy.ThrowIfInvalid(nameof(policy));
-			if (!IsFlagsType()) {
+			if (!IsFlagsType) {
 				var values = sEnumValueCache.Value.Where(v => v.Underlying == value);
 				if (!values.Any()) {
 					if (policy == InvalidEnumPolicy.Allow) {
@@ -1026,7 +1037,7 @@ namespace System {
 							convertResult = Convert.ChangeType(value, underlyingType);
 						}
 
-						result = (TValue)Enum.ToObject(typeof(TValue), convertResult);
+						result = (TValue)Enum.ToObject(sEnumType, convertResult);
 						return true;
 					}
 
@@ -1046,7 +1057,7 @@ namespace System {
 						return false;
 					}
 
-					result = (TValue)Enum.ToObject(typeof(TValue), 0);
+					result = (TValue)Enum.ToObject(sEnumType, 0);
 					return true;
 				}
 
@@ -1080,7 +1091,7 @@ namespace System {
 				return false;
 			}
 
-			result = (TValue)Enum.ToObject(typeof(TValue), value);
+			result = (TValue)Enum.ToObject(sEnumType, value);
 			return true;
 		}
 
@@ -1090,6 +1101,34 @@ namespace System {
 
 		private static void EnsureNonFlagsType() {
 			if (!sIsFlagsType) throw new InvalidOperationException("Must be used with a non-flags enum type");
+		}
+
+		private static bool AllFlagsValuesDefined(ulong value) {
+			if (value == 0) {
+				return sEnumValueCache.Value.Any(v => v.Underlying == 0);
+			}
+
+			ulong consumed = 0;
+			ulong remaining = value;
+			foreach (var v in sEnumValueCache.Value) {
+				if (v.Underlying == 0) continue;
+
+				if ((remaining & v.Underlying) == v.Underlying) {
+					remaining &= ~v.Underlying;
+					consumed |= v.Underlying;
+				}
+				else if ((consumed & v.Underlying) != 0) {
+					// At least one bit of the current combination flag has been applied to other flags
+					// We reconstruct the original to see if all flags from the current apply
+					// If so, we mask all bits off the value and add them to consumed
+					if (((consumed | remaining) & v.Underlying) == v.Underlying) {
+						remaining &= ~v.Underlying;
+						consumed |= v.Underlying;
+					}
+				}
+			}
+
+			return remaining == 0;
 		}
 	}
 }

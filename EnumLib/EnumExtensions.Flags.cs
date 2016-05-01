@@ -12,6 +12,8 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <returns>true if the enum value contains any flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasAnyFlags(this Enum @this) {
 			@this.ThrowIfInvalid(nameof(@this));
 			CheckType(@this, true);
@@ -25,6 +27,8 @@ namespace System {
 		/// <param name="flag">The flag to test.</param>
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value contains any of the specified flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasAnyFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -45,6 +49,8 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <returns>true if the enum value contains no flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasNoFlags(this Enum @this) {
 			@this.ThrowIfInvalid(nameof(@this));
 			CheckType(@this, true);
@@ -58,6 +64,8 @@ namespace System {
 		/// <param name="flag">The flag to test.</param>
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value contains none of the specified flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasNoFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -78,6 +86,8 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <returns>true if the enum value contains all flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasAllFlags(this Enum @this) {
 			@this.ThrowIfInvalid(nameof(@this));
 			Type type = CheckType(@this, true);
@@ -94,6 +104,8 @@ namespace System {
 		/// <param name="flag">The flag to test.</param>
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value contains all of the specified flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasAllFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -117,6 +129,8 @@ namespace System {
 		/// <param name="flag">The flag to test.</param>
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value is zero or has only the specified flags and no other flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasOnlyFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -142,6 +156,8 @@ namespace System {
 		/// <param name="flag">The flag to test.</param>
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value has all of the specified flags and no other flags.</returns>
+		/// <exception cref="System.ArgumentNullException"></exception>
+		/// <exception cref="System.ArgumentException"></exception>
 		public static bool HasExactlyFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));

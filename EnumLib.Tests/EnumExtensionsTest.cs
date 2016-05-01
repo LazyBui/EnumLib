@@ -420,6 +420,13 @@ namespace EnumLib.Tests {
 			value = 0;
 			Assert.DoesNotThrow(() => value = (int)EnumVanilla.One.As<ulong>());
 			Assert.Equal(value, 1);
+
+			value = 0;
+			Assert.ThrowsExact<OverflowException>(() => value = EnumVanilla.Huge.As<byte>());
+			Assert.ThrowsExact<OverflowException>(() => value = EnumVanilla.Huge.As<sbyte>());
+			Assert.ThrowsExact<OverflowException>(() => value = EnumVanilla.Huge.As<ushort>());
+			Assert.ThrowsExact<OverflowException>(() => value = EnumVanilla.Huge.As<short>());
+			Assert.ThrowsExact<OverflowException>(() => value = ((EnumVanilla)(-1)).As<ushort>());
 		}
 	}
 }

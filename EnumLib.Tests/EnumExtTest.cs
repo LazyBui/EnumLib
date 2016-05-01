@@ -80,6 +80,7 @@ namespace EnumLib.Tests {
 				EnumVanilla.Two,
 				EnumVanilla.Three,
 				EnumVanilla.Four,
+				EnumVanilla.Huge,
 			};
 			Assert.DoesNotThrow(() => resultVanilla = EnumExt<EnumVanilla>.GetValues());
 			Assert.NotNull(resultVanilla);
@@ -136,6 +137,7 @@ namespace EnumLib.Tests {
 				nameof(EnumVanilla.Two),
 				nameof(EnumVanilla.Three),
 				nameof(EnumVanilla.Four),
+				nameof(EnumVanilla.Huge),
 			};
 			Assert.DoesNotThrow(() => result = EnumExt<EnumVanilla>.GetNames());
 			Assert.NotNull(result);
@@ -264,16 +266,16 @@ namespace EnumLib.Tests {
 		[TestMethod]
 		public void IsFlagsType() {
 			bool result = false;
-			Assert.DoesNotThrow(() => result = EnumExt<EnumVanilla>.IsFlagsType());
+			Assert.DoesNotThrow(() => result = EnumExt<EnumVanilla>.IsFlagsType);
 			Assert.False(result);
 
-			Assert.DoesNotThrow(() => result = EnumExt<EnumSimpleFlags>.IsFlagsType());
+			Assert.DoesNotThrow(() => result = EnumExt<EnumSimpleFlags>.IsFlagsType);
 			Assert.True(result);
 
-			Assert.DoesNotThrow(() => result = EnumExt<EnumComboFlags>.IsFlagsType());
+			Assert.DoesNotThrow(() => result = EnumExt<EnumComboFlags>.IsFlagsType);
 			Assert.True(result);
 
-			Assert.DoesNotThrow(() => result = EnumExt<EnumComboOnlyFlags>.IsFlagsType());
+			Assert.DoesNotThrow(() => result = EnumExt<EnumComboOnlyFlags>.IsFlagsType);
 			Assert.True(result);
 		}
 

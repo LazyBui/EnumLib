@@ -5,6 +5,18 @@ using System.Reflection;
 
 namespace System {
 	internal static class InternalExtensions {
+		public static ulong BitwiseCastUnsigned(this long @this) {
+			unsafe {
+				return *(ulong *)&@this;
+			}
+		}
+
+		public static long BitwiseCastSigned(this ulong @this) {
+			unsafe {
+				return *(long *)&@this;
+			}
+		}
+
 		#if NETFX_40_OR_LOWER
 		public static TAttribute GetCustomAttribute<TAttribute>(this Type @this) where TAttribute : Attribute {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
