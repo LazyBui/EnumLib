@@ -13,9 +13,9 @@ namespace System {
 		/// <param name="this">The enum value.</param>
 		/// <typeparam name="TInteger">Desired integer type.</typeparam>
 		/// <returns>A casted integer value based on the enumeration value.</returns>
-		/// <exception cref="System.ArgumentNullException"></exception>
-		/// <exception cref="System.InvalidOperationException"></exception>
-		/// <exception cref="System.OverflowException"></exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not an integral enum type.</exception>
+		/// <exception cref="System.OverflowException"><paramref name="@this"/> cannot be safely casted to the specified type.</exception>
 		public static TInteger As<TInteger>(this Enum @this) where TInteger : struct {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			Type integerType = typeof(TInteger);
