@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace System {
 			public EnumValue(FieldInfo field) {
 				Value = (TValue)field.GetRawConstantValue();
 				DescriptionAttribute attr = field.GetCustomAttribute<DescriptionAttribute>();
-				if (attr != null) Description = attr.Description;
+				Description = attr?.Description;
 				Attributes = field.GetCustomAttributes(false).Cast<Attribute>().ToList();
 				Underlying = Convert.ToUInt64(Value);
 				Name = field.Name;
@@ -26,9 +27,9 @@ namespace System {
 
 		#if NETFX_35_OR_LOWER
 		private sealed class EnumValueHolder {
-			public IEnumerable<EnumValue> Value { get; private set; }
+			public ReadOnlyCollection<EnumValue> Value { get; private set; }
 
-			public EnumValueHolder(Func<IEnumerable<EnumValue>> func) {
+			public EnumValueHolder(Func<ReadOnlyCollection<EnumValue>> func) {
 				if (object.ReferenceEquals(func, null)) throw new ArgumentNullException(nameof(func));
 				Value = func();
 			}
@@ -36,7 +37,7 @@ namespace System {
 
 		private static EnumValueHolder sEnumValueCache = null;
 		#else
-		private static Lazy<IEnumerable<EnumValue>> sEnumValueCache = new Lazy<IEnumerable<EnumValue>>(ProduceValues);
+		private static Lazy<ReadOnlyCollection<EnumValue>> sEnumValueCache = new Lazy<ReadOnlyCollection<EnumValue>>(ProduceValues);
 		#endif
 
 		static EnumExt() {
@@ -48,9 +49,111 @@ namespace System {
 			#if NETFX_35_OR_LOWER
 			sEnumValueCache = new EnumValueHolder(ProduceValues);
 			#endif
+
+			bool isSignedUnderlying = new[] {
+				typeof(sbyte),
+				typeof(short),
+				typeof(int),
+				typeof(long),
+			}.Contains(sUnderlying);
+
+			ulong typeMaxValue = 0;
+			if (isSignedUnderlying) {
+				if (sUnderlying == typeof(sbyte)) typeMaxValue = (ulong)sbyte.MaxValue;
+				else if (sUnderlying == typeof(short)) typeMaxValue = (ulong)short.MaxValue;
+				else if (sUnderlying == typeof(int)) typeMaxValue = int.MaxValue;
+				else if (sUnderlying == typeof(long)) typeMaxValue = long.MaxValue;
+				else throw new NotImplementedException();
+			}
+			else {
+				typeMaxValue = ulong.MaxValue;
+			}
+
+			if (sEnumValueCache.Value.Count == 0) {
+				sMaxValue = default(TValue);
+				sMinValue = default(TValue);
+				sMaxFlagsValue = default(TValue);
+			}
+			else if (sEnumValueCache.Value.Any(v => v.Underlying > typeMaxValue)) {
+				// Special care needs to be taken for sign
+				ulong maxPositiveValue = ulong.MinValue;
+				ulong minPositiveValue = ulong.MaxValue;
+				ulong maxNegativeValue = ulong.MinValue;
+				ulong minNegativeValue = ulong.MaxValue;
+				bool anyPositive = false;
+				foreach (var value in sEnumValueCache.Value) {
+					if (value.Underlying == 0) {
+						sZeroValue = value.Value;
+					}
+					else if (value.Underlying < 0x8000000000000000UL) {
+						anyPositive = true;
+						if (value.Underlying > maxPositiveValue) {
+							maxPositiveValue = value.Underlying;
+						}
+						if (value.Underlying < minPositiveValue) {
+							minPositiveValue = value.Underlying;
+						}
+					}
+					else {
+						if (value.Underlying > maxNegativeValue) {
+							maxNegativeValue = value.Underlying;
+						}
+						if (value.Underlying < minNegativeValue) {
+							minNegativeValue = value.Underlying;
+						}
+					}
+				}
+
+				if (!anyPositive) {
+					sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minNegativeValue).Value;
+					sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxNegativeValue).Value;
+				}
+				else {
+					sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minNegativeValue).Value;
+					sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxPositiveValue).Value;
+				}
+
+				if (sIsFlagsType) {
+					ulong underlying = 0;
+					foreach (var value in sEnumValueCache.Value) {
+						underlying |= value.Underlying;
+					}
+
+					sMaxFlagsValue = (TValue)Enum.ToObject(sEnumType, underlying);
+				}
+			}
+			else {
+				ulong maxValue = ulong.MinValue;
+				ulong minValue = ulong.MaxValue;
+				foreach (var value in sEnumValueCache.Value) {
+					if (value.Underlying == 0) {
+						sZeroValue = value.Value;
+					}
+					else {
+						if (value.Underlying > maxValue) {
+							maxValue = value.Underlying;
+						}
+						if (value.Underlying < minValue) {
+							minValue = value.Underlying;
+						}
+					}
+				}
+
+				sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minValue).Value;
+				sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxValue).Value;
+
+				if (sIsFlagsType) {
+					maxValue = 0;
+					foreach (var value in sEnumValueCache.Value) {
+						maxValue |= value.Underlying;
+					}
+
+					sMaxFlagsValue = (TValue)Enum.ToObject(sEnumType, maxValue);
+				}
+			}
 		}
 
-		private static IEnumerable<EnumValue> ProduceValues() {
+		private static ReadOnlyCollection<EnumValue> ProduceValues() {
 			FieldInfo[] fields = sEnumType.GetFields(BindingFlags.Public | BindingFlags.Static);
 
 			var result = new List<EnumValue>();
@@ -59,18 +162,71 @@ namespace System {
 				result.Add(new EnumValue(field));
 			}
 
-			return result;
+			return result.AsReadOnly();
 		}
 
 		private static Type sEnumType = null;
 		private static Type sUnderlying = null;
+		private static TValue? sZeroValue = null;
+		private static TValue sMaxValue;
+		private static TValue sMinValue;
+		private static TValue sMaxFlagsValue;
 		private static bool sIsFlagsType = false;
+
 		/// <summary>
 		/// Determines whether the generic type is an enum type with the <see cref="System.FlagsAttribute"/>.
 		/// </summary>
 		/// <returns>true if the <see cref="System.Enum"/> has <see cref="FlagsAttribute"/>, false otherwise.</returns>
 		public static bool IsFlagsType {
 			get { return sIsFlagsType; }
+		}
+
+		/// <summary>
+		/// Returns the count of enum members.
+		/// </summary>
+		public static int Count {
+			get { return sEnumValueCache.Value.Count; }
+		}
+
+		/// <summary>
+		/// If present, will get the explicit zero enum member.
+		/// </summary>
+		public static TValue? ZeroValue {
+			get { return sZeroValue; }
+		}
+
+		/// <summary>
+		/// Gets either the explicit zero enum member or the 0 value for the enum.
+		/// </summary>
+		public static TValue DefaultValue {
+			get { return sZeroValue ?? default(TValue); }
+		}
+
+		/// <summary>
+		/// Gets the largest value non-0 value in the enum.
+		/// In the case where the enum has no values, the value will be 0.
+		/// </summary>
+		public static TValue MaxValue {
+			get { return sMaxValue; }
+		}
+
+		/// <summary>
+		/// Gets the smallest non-0 value in the enum.
+		/// In the case where the enum has no values, the value will be 0.
+		/// </summary>
+		public static TValue MinValue {
+			get { return sMinValue; }
+		}
+
+		/// <summary>
+		/// Gets a value with all flags in the enum set.
+		/// </summary>
+		/// <exception cref="System.InvalidOperationException"><typeparamref name="TValue"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		public static TValue MaxFlagsValue {
+			get {
+				EnsureFlagsType();
+				return sMaxFlagsValue;
+			}
 		}
 
 		/// <summary>
@@ -448,15 +604,17 @@ namespace System {
 		}
 
 		/// <summary>
-		/// Extracts all of the applicable flags in a flags enum value.
+		/// Extracts all of the applicable flags in a <see cref="System.FlagsAttribute"/> enum value.
+		/// If there are flags with multiple bits set and all of the conditions are satisfied, any that match will go in.
+		/// For example, if you had bit 1 as a specific value, bit 2 as a specific value, and bits 1 and 2 as another value, all of these will exist in the return if both bits are set.
 		/// </summary>
 		/// <param name="value">The value to extract flags from.</param>
 		/// <returns>All of the applicable flags in a flags enum value.</returns>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> contains a value not defined by the enum.</exception>
 		/// <exception cref="System.InvalidOperationException"><typeparamref name="TValue"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static IEnumerable<TValue> ExtractFlags(TValue value) {
-			ThrowIfInvalid(value, nameof(value));
 			EnsureFlagsType();
+			ThrowIfInvalid(value, nameof(value));
 
 			var result = new List<TValue>();
 			ulong test = Convert.ToUInt64(value);

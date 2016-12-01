@@ -164,6 +164,8 @@ namespace System {
 
 		/// <summary>
 		/// Extracts all of the applicable flags in a flags enum value.
+		/// If there are flags with multiple bits set and all of the conditions are satisfied, any that match will go in.
+		/// For example, if you had bit 1 as a specific value, bit 2 as a specific value, and bits 1 and 2 as another value, all of these will exist in the return if both bits are set.
 		/// </summary>
 		/// <param name="value">The value to extract flags from.</param>
 		/// <returns>All of the applicable flags in a flags enum value.</returns>

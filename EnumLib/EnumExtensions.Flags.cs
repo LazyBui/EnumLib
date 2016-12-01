@@ -148,13 +148,14 @@ namespace System {
 		}
 
 		/// <summary>
-		/// Determines whether a <see cref="System.FlagsAttribute"/> enum has only the flags that are specified and no other flags.
-		/// Does not require all of the flags specified to be set in the value.
+		/// Determines whether a <see cref="System.FlagsAttribute"/> enum has no flags set other than potentially the flags specified.
+		/// Does not require any of the flags specified to be set in the value.
+		/// If you are interested in whether any or all of the flags are also set, use <see cref="HasAnyFlags" /> or <see cref="HasAllFlags" /> in addition.
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <param name="flag">The flag to test.</param>
 		/// <param name="flags">Any additional flags to test.</param>
-		/// <returns>true if the enum value is zero or has only the specified flags and no other flags.</returns>
+		/// <returns>true if the enum value has no flags other than the ones specified (but does not imply that any of the specified bits are set).</returns>
 		/// <exception cref="System.ArgumentException">
 		/// 	<paramref name="@this"/> contains a value not defined by the enum.
 		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="@this"/>.
