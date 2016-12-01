@@ -245,6 +245,16 @@ namespace EnumLib.Tests {
 			Assert.DoesNotThrow(() => result = EnumExt<EnumComboOnlyFlags>.Format(EnumComboOnlyFlags.BitsOneTwoFour, "g"));
 			Assert.NotNull(result);
 			Assert.Equal(result, "BitsOneTwoFour");
+
+			result = null;
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.Format(EnumWithNegativeValues.Middle, "g"));
+			Assert.NotNull(result);
+			Assert.Equal(result, "Middle");
+
+			result = null;
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.Format(EnumWithNegativeValues.Middle, "d"));
+			Assert.NotNull(result);
+			Assert.Equal(result, "-22");
 		}
 
 		[TestMethod]
@@ -528,6 +538,17 @@ namespace EnumLib.Tests {
 			Assert.False(result);
 			Assert.DoesNotThrow(() => result = EnumExt<EnumComboOnlyFlags>.IsValidValue(0));
 			Assert.True(result);
+
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsValidValue(0));
+			Assert.False(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsValidValue(-22));
+			Assert.True(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsValidValue((sbyte)-22));
+			Assert.True(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsValidValue(-22L));
+			Assert.True(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsValidValue(-23L));
+			Assert.False(result);
 		}
 
 		[TestMethod]
@@ -890,6 +911,17 @@ namespace EnumLib.Tests {
 			Assert.False(result);
 			Assert.DoesNotThrow(() => result = EnumExt<EnumComboOnlyFlags>.IsDefined(0));
 			Assert.True(result);
+
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsDefined(0));
+			Assert.False(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsDefined(-22));
+			Assert.True(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsDefined((sbyte)-22));
+			Assert.True(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsDefined(-22L));
+			Assert.True(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.IsDefined(-23L));
+			Assert.False(result);
 		}
 
 		[TestMethod]
@@ -1206,6 +1238,7 @@ namespace EnumLib.Tests {
 
 			EnumVanilla result = EnumVanilla.None;
 			EnumVanillaDuplicate result2 = EnumVanillaDuplicate.None;
+			EnumWithNegativeValues negativeResult = default(EnumWithNegativeValues);
 
 			result = EnumVanilla.None;
 			Assert.ThrowsExact<InvalidOperationException>(() => EnumExt<EnumVanilla>.Parse($"{nameof(EnumVanilla.One)}, {nameof(EnumVanilla.Two)}"));
@@ -1263,12 +1296,18 @@ namespace EnumLib.Tests {
 			result2 = EnumVanillaDuplicate.None;
 			Assert.DoesNotThrow(() => result2 = EnumExt<EnumVanillaDuplicate>.Parse("1"));
 			Assert.True(result2 == EnumVanillaDuplicate.One);
+
+			negativeResult = default(EnumWithNegativeValues);
+			Assert.DoesNotThrow(() => negativeResult = EnumExt<EnumWithNegativeValues>.Parse("-22"));
+			Assert.True(negativeResult == EnumWithNegativeValues.Middle);
+			Assert.ThrowsExact<FormatException>(() => negativeResult = EnumExt<EnumWithNegativeValues>.Parse("-23"));
 		}
 
 		[TestMethod]
 		public void TryParse() {
 			EnumVanilla value = EnumVanilla.None;
 			EnumVanillaDuplicate value2 = EnumVanillaDuplicate.None;
+			EnumWithNegativeValues negativeResult = default(EnumWithNegativeValues);
 			bool? result = null;
 			Assert.ThrowsExact<ArgumentNullException>(() => EnumExt<EnumVanilla>.TryParse(null, out value));
 			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumVanilla>.TryParse("", out value));
@@ -1368,6 +1407,14 @@ namespace EnumLib.Tests {
 			Assert.DoesNotThrow(() => result = EnumExt<EnumVanillaDuplicate>.TryParse("1", out value2));
 			Assert.True(result);
 			Assert.True(value2 == EnumVanillaDuplicate.One);
+
+			negativeResult = default(EnumWithNegativeValues);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.TryParse("-22", out negativeResult));
+			Assert.True(result);
+			Assert.True(negativeResult == EnumWithNegativeValues.Middle);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.TryParse("-23", out negativeResult));
+			Assert.False(result);
+			Assert.True(negativeResult == default(EnumWithNegativeValues));
 		}
 
 		[TestMethod]
@@ -1455,6 +1502,13 @@ namespace EnumLib.Tests {
 			value = EnumVanilla.None;
 			Assert.DoesNotThrow(() => value = EnumExt<EnumVanilla>.Cast(ushort.MaxValue, policy: InvalidEnumPolicy.Allow));
 			Assert.True(value == (EnumVanilla)(ushort.MaxValue));
+
+			EnumWithNegativeValues negativeValue = default(EnumWithNegativeValues);
+			Assert.ThrowsExact<InvalidCastException>(() => negativeValue = EnumExt<EnumWithNegativeValues>.Cast(0));
+			Assert.ThrowsExact<InvalidCastException>(() => negativeValue = EnumExt<EnumWithNegativeValues>.Cast(1));
+			Assert.ThrowsExact<InvalidCastException>(() => negativeValue = EnumExt<EnumWithNegativeValues>.Cast(-23));
+			Assert.DoesNotThrow(() => negativeValue = EnumExt<EnumWithNegativeValues>.Cast(-22));
+			Assert.True(negativeValue == EnumWithNegativeValues.Middle);
 		}
 
 		[TestMethod]
@@ -1749,6 +1803,17 @@ namespace EnumLib.Tests {
 			Assert.DoesNotThrow(() => result = EnumExt<EnumVanilla>.TryCast(ushort.MaxValue, InvalidEnumPolicy.Allow, out value));
 			Assert.True(result);
 			Assert.True(value == (EnumVanilla)(ushort.MaxValue));
+
+			EnumWithNegativeValues negativeValue = default(EnumWithNegativeValues);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.TryCast(0, out negativeValue));
+			Assert.False(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.TryCast(1, out negativeValue));
+			Assert.False(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.TryCast(-23, out negativeValue));
+			Assert.False(result);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.TryCast(-22, out negativeValue));
+			Assert.True(result);
+			Assert.True(negativeValue == EnumWithNegativeValues.Middle);
 		}
 
 		[TestMethod]

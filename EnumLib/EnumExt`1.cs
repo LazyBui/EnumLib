@@ -26,10 +26,9 @@ namespace System {
 				// The problem is that we want to be able to specify any type - sbyte, short, etc. and still get consistent behavior
 				// So for example if you provide a ulong for a signed enum, there's an issue
 				Type underlyingType = sUnderlying;
-				bool underlyingIsSigned = sSignedTypes.Contains(underlyingType);
 
 				object convertResult = Convert.ChangeType(Value, underlyingType);
-				if (underlyingIsSigned) {
+				if (sIsSignedUnderlying) {
 					Underlying = (ulong)Convert.ToInt64(convertResult);
 				}
 				else {
@@ -59,19 +58,18 @@ namespace System {
 			sEnumType = type;
 			sIsFlagsType = EnumExtensions.IsFlagsType(type);
 			sUnderlying = Enum.GetUnderlyingType(type);
-			#if NETFX_35_OR_LOWER
-			sEnumValueCache = new EnumValueHolder(ProduceValues);
-			#endif
-
-			bool isSignedUnderlying = new[] {
+			sIsSignedUnderlying = new[] {
 				typeof(sbyte),
 				typeof(short),
 				typeof(int),
 				typeof(long),
 			}.Contains(sUnderlying);
 
+			#if NETFX_35_OR_LOWER
+			sEnumValueCache = new EnumValueHolder(ProduceValues);
+			#endif
 			ulong typeMaxValue = 0;
-			if (isSignedUnderlying) {
+			if (sIsSignedUnderlying) {
 				if (sUnderlying == typeof(sbyte)) typeMaxValue = (ulong)sbyte.MaxValue;
 				else if (sUnderlying == typeof(short)) typeMaxValue = (ulong)short.MaxValue;
 				else if (sUnderlying == typeof(int)) typeMaxValue = int.MaxValue;
@@ -185,6 +183,7 @@ namespace System {
 		private static TValue sMinValue;
 		private static TValue sMaxFlagsValue;
 		private static bool sIsFlagsType = false;
+		private static bool sIsSignedUnderlying = false;
 
 		/// <summary>
 		/// Determines whether the generic type is an enum type with the <see cref="System.FlagsAttribute"/>.
@@ -428,7 +427,9 @@ namespace System {
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
 		public static bool IsValidValue(TValue value) {
 			try {
-				ulong casted = Convert.ToUInt64(value);
+				ulong casted = sIsSignedUnderlying ?
+					(ulong)Convert.ToInt64(value) :
+					Convert.ToUInt64(value);
 				if (IsFlagsType) return AllFlagsValuesDefined(casted);
 				return IsDefined(casted);
 			}
@@ -1172,7 +1173,6 @@ namespace System {
 		private static ArgumentException BoundaryExceeded {
 			get { return new ArgumentException("Provided integer exceeds the bounds of the underlying type", "value"); }
 		}
-		private static readonly Type[] sSignedTypes = new[] { typeof(sbyte), typeof(short), typeof(int), typeof(long) };
 		private static readonly Type[] sUnsignedTypes = new[] { typeof(byte), typeof(ushort), typeof(uint), typeof(ulong) };
 		private static void ThrowIfValueExceedsEnumBounds(byte value) {
 			bool @throw = false;
@@ -1265,8 +1265,7 @@ namespace System {
 						// So for example if you provide a ulong for a signed enum, there's an issue
 						Type underlyingType = sUnderlying;
 						object convertResult = null;
-						bool underlyingIsSigned = sSignedTypes.Contains(underlyingType);
-						if (underlyingIsSigned) {
+						if (sIsSignedUnderlying) {
 							convertResult = Convert.ChangeType((long)value, underlyingType);
 						}
 						else {
