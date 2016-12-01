@@ -295,6 +295,45 @@ namespace EnumLib.Tests {
 		}
 
 		[TestMethod]
+		public void Count() {
+			Assert.Equal(EnumExt<EnumVanilla>.Count, 6);
+			Assert.Equal(EnumExt<EnumVanillaDuplicate>.Count, 4);
+			Assert.Equal(EnumExt<EnumSimpleFlags>.Count, 5);
+			Assert.Equal(EnumExt<EnumComboFlags>.Count, 5);
+		}
+
+		[TestMethod]
+		public void ValueProperties() {
+			Assert.Equal(EnumExt<EnumVanilla>.ZeroValue, EnumVanilla.None as EnumVanilla?);
+			Assert.Equal(EnumExt<EnumVanillaDuplicate>.ZeroValue, EnumVanillaDuplicate.None as EnumVanillaDuplicate?);
+			Assert.Equal(EnumExt<EnumSimpleFlags>.ZeroValue, EnumSimpleFlags.None as EnumSimpleFlags?);
+			Assert.Equal(EnumExt<EnumComboFlags>.ZeroValue, null as EnumComboFlags?);
+			Assert.Equal(EnumExt<EnumWithNegativeValues>.ZeroValue, null as EnumWithNegativeValues?);
+
+			Assert.Equal(EnumExt<EnumVanilla>.DefaultValue, EnumVanilla.None);
+			Assert.Equal(EnumExt<EnumVanillaDuplicate>.DefaultValue, EnumVanillaDuplicate.None);
+			Assert.Equal(EnumExt<EnumSimpleFlags>.DefaultValue, EnumSimpleFlags.None);
+			Assert.Equal(EnumExt<EnumComboFlags>.DefaultValue, default(EnumComboFlags));
+			Assert.Equal(EnumExt<EnumWithNegativeValues>.DefaultValue, default(EnumWithNegativeValues));
+
+			Assert.Equal(EnumExt<EnumVanilla>.MinValue, EnumVanilla.One);
+			Assert.Equal(EnumExt<EnumVanillaDuplicate>.MinValue, EnumVanillaDuplicate.One);
+			Assert.Equal(EnumExt<EnumSimpleFlags>.MinValue, EnumSimpleFlags.BitOne);
+			Assert.Equal(EnumExt<EnumComboFlags>.MinValue, EnumComboFlags.BitOne);
+			Assert.Equal(EnumExt<EnumWithNegativeValues>.MinValue, EnumWithNegativeValues.Low);
+
+			Assert.Equal(EnumExt<EnumVanilla>.MaxValue, EnumVanilla.Huge);
+			Assert.Equal(EnumExt<EnumVanillaDuplicate>.MaxValue, EnumVanillaDuplicate.Two);
+			Assert.Equal(EnumExt<EnumSimpleFlags>.MaxValue, EnumSimpleFlags.BitFour);
+			Assert.Equal(EnumExt<EnumComboFlags>.MaxValue, EnumComboFlags.BitsOneTwoThree);
+			Assert.Equal(EnumExt<EnumWithNegativeValues>.MaxValue, EnumWithNegativeValues.High);
+
+			Assert.ThrowsExact<InvalidOperationException>(() => { var x = EnumExt<EnumVanilla>.MaxFlagsValue; });
+			Assert.Equal(EnumExt<EnumSimpleFlags>.MaxFlagsValue, EnumSimpleFlags.BitOne | EnumSimpleFlags.BitTwo | EnumSimpleFlags.BitThree | EnumSimpleFlags.BitFour);
+			Assert.Equal(EnumExt<EnumComboFlags>.MaxFlagsValue, EnumComboFlags.BitsOneTwoThree);
+		}
+
+		[TestMethod]
 		public void GetText() {
 			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumVanilla>.GetText((EnumVanilla)(-1)));
 			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboFlags>.GetText(EnumComboFlags.BitOne | EnumComboFlags.BitTwo));

@@ -20,8 +20,21 @@ namespace System {
 				DescriptionAttribute attr = field.GetCustomAttribute<DescriptionAttribute>();
 				Description = attr?.Description;
 				Attributes = field.GetCustomAttributes(false).Cast<Attribute>().ToList();
-				Underlying = Convert.ToUInt64(Value);
 				Name = field.Name;
+
+				// At this point, we have to check each underlying type, otherwise casting is going to fail
+				// The problem is that we want to be able to specify any type - sbyte, short, etc. and still get consistent behavior
+				// So for example if you provide a ulong for a signed enum, there's an issue
+				Type underlyingType = sUnderlying;
+				bool underlyingIsSigned = sSignedTypes.Contains(underlyingType);
+
+				object convertResult = Convert.ChangeType(Value, underlyingType);
+				if (underlyingIsSigned) {
+					Underlying = (ulong)Convert.ToInt64(convertResult);
+				}
+				else {
+					Underlying = Convert.ToUInt64(convertResult);
+				}
 			}
 		}
 
