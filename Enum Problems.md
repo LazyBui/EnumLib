@@ -17,7 +17,7 @@ This is a full list of the problems I'm aware of with .NET enums, the problems t
 	As such, it is insufficient to check whether a set of flags is a valid one based on the enum definition. The library provides a `HasValidValue` extension method on `Enum` or an `IsValidValue` method on `EnumExt` to interrogate enums. Additionally, `EnumExt` has an `IsDefined` method which behaves more consistently with expectations.
 
 5. `HasFlags` has unclear semantics and is not available at all if older than .NET Framework 4.
-	It's unclear what the relationship between the specified flags and the original value must be based on this function alone. It's unclear whether it's an and or or relationship to the original value. For the record, it's equivalent to `HasAnyFlags`. This library provides clearer semantics by providing `HasAllFlags`, `HasAnyFlags`, and `HasExactlyFlags` extension methods on `Enum`.
+	It's unclear what the relationship between the specified flags and the original value must be based on this function alone. It's unclear whether it's an and or or relationship to the original value. For the record, it's equivalent to `HasAllFlags`. This library provides clearer semantics by providing `HasAllFlags`, `HasAnyFlags`, and `HasExactlyFlags` extension methods on `Enum`.
 
 6. There are other operations that may be desirable for flags.
 	+ This library provides `HasNoFlags`, `HasOnlyFlags`, and `HasExactlyFlags` to expand the operations that a user can perform out of the box with enums.
