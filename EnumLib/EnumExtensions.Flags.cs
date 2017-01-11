@@ -8,9 +8,9 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <returns>true if the enum value contains any flags.</returns>
-		/// <exception cref="System.ArgumentException"><paramref name="@this"/> contains a value not defined by the enum.</exception>
-		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.ArgumentException"><paramref name="this"/> contains a value not defined by the enum.</exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="this"/> is null.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasAnyFlags(this Enum @this) {
 			@this.ThrowIfInvalid(nameof(@this));
 			CheckType(@this, true);
@@ -25,16 +25,16 @@ namespace System {
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value contains any of the specified flags.</returns>
 		/// <exception cref="System.ArgumentException">
-		/// 	<paramref name="@this"/> contains a value not defined by the enum.
-		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="@this"/>.
-		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="@this"/>.
+		/// 	<paramref name="this"/> contains a value not defined by the enum.
+		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="this"/>.
+		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="this"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// 	<paramref name="@this"/> is null.
+		/// 	<paramref name="this"/> is null.
 		/// 	<paramref name="flag"/> is null.
 		/// 	<paramref name="flags"/> is null.
 		/// </exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasAnyFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -55,9 +55,9 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <returns>true if the enum value contains no flags.</returns>
-		/// <exception cref="System.ArgumentException"><paramref name="@this"/> contains a value not defined by the enum.</exception>
-		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.ArgumentException"><paramref name="this"/> contains a value not defined by the enum.</exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="this"/> is null.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasNoFlags(this Enum @this) {
 			@this.ThrowIfInvalid(nameof(@this));
 			CheckType(@this, true);
@@ -72,16 +72,16 @@ namespace System {
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value contains none of the specified flags.</returns>
 		/// <exception cref="System.ArgumentException">
-		/// 	<paramref name="@this"/> contains a value not defined by the enum.
-		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="@this"/>.
-		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="@this"/>.
+		/// 	<paramref name="this"/> contains a value not defined by the enum.
+		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="this"/>.
+		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="this"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// 	<paramref name="@this"/> is null.
+		/// 	<paramref name="this"/> is null.
 		/// 	<paramref name="flag"/> is null.
 		/// 	<paramref name="flags"/> is null.
 		/// </exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasNoFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -102,9 +102,9 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <returns>true if the enum value contains all flags.</returns>
-		/// <exception cref="System.ArgumentException"><paramref name="@this"/> contains a value not defined by the enum.</exception>
-		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.ArgumentException"><paramref name="this"/> contains a value not defined by the enum.</exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="this"/> is null.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasAllFlags(this Enum @this) {
 			@this.ThrowIfInvalid(nameof(@this));
 			Type type = CheckType(@this, true);
@@ -122,16 +122,16 @@ namespace System {
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value contains all of the specified flags.</returns>
 		/// <exception cref="System.ArgumentException">
-		/// 	<paramref name="@this"/> contains a value not defined by the enum.
-		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="@this"/>.
-		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="@this"/>.
+		/// 	<paramref name="this"/> contains a value not defined by the enum.
+		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="this"/>.
+		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="this"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// 	<paramref name="@this"/> is null.
+		/// 	<paramref name="this"/> is null.
 		/// 	<paramref name="flag"/> is null.
 		/// 	<paramref name="flags"/> is null.
 		/// </exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasAllFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -150,23 +150,23 @@ namespace System {
 		/// <summary>
 		/// Determines whether a <see cref="System.FlagsAttribute"/> enum has no flags set other than potentially the flags specified.
 		/// Does not require any of the flags specified to be set in the value.
-		/// If you are interested in whether any or all of the flags are also set, use <see cref="HasAnyFlags" /> or <see cref="HasAllFlags" /> in addition.
+		/// If you are interested in whether any or all of the flags are also set, use <see cref="HasAnyFlags(Enum, Enum, Enum[])" /> or <see cref="HasAllFlags(Enum, Enum, Enum[])" /> in addition.
 		/// </summary>
 		/// <param name="this">The enum value.</param>
 		/// <param name="flag">The flag to test.</param>
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value has no flags other than the ones specified (but does not imply that any of the specified bits are set).</returns>
 		/// <exception cref="System.ArgumentException">
-		/// 	<paramref name="@this"/> contains a value not defined by the enum.
-		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="@this"/>.
-		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="@this"/>.
+		/// 	<paramref name="this"/> contains a value not defined by the enum.
+		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="this"/>.
+		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="this"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// 	<paramref name="@this"/> is null.
+		/// 	<paramref name="this"/> is null.
 		/// 	<paramref name="flag"/> is null.
 		/// 	<paramref name="flags"/> is null.
 		/// </exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasOnlyFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));
@@ -193,16 +193,16 @@ namespace System {
 		/// <param name="flags">Any additional flags to test.</param>
 		/// <returns>true if the enum value has all of the specified flags and no other flags.</returns>
 		/// <exception cref="System.ArgumentException">
-		/// 	<paramref name="@this"/> contains a value not defined by the enum.
-		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="@this"/>.
-		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="@this"/>.
+		/// 	<paramref name="this"/> contains a value not defined by the enum.
+		/// 	<paramref name="flag"/> contains a value not defined by the enum or is not of a consistent type with <paramref name="this"/>.
+		/// 	<paramref name="flags"/> contains any value that is null or not defined by the enum or are not of a consistent type with <paramref name="this"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// 	<paramref name="@this"/> is null.
+		/// 	<paramref name="this"/> is null.
 		/// 	<paramref name="flag"/> is null.
 		/// 	<paramref name="flags"/> is null.
 		/// </exception>
-		/// <exception cref="System.InvalidOperationException"><paramref name="@this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
+		/// <exception cref="System.InvalidOperationException"><paramref name="this"/> is not a <see cref="System.FlagsAttribute"/> enum.</exception>
 		public static bool HasExactlyFlags(this Enum @this, Enum flag, params Enum[] flags) {
 			@this.ThrowIfInvalid(nameof(@this));
 			flag.ThrowIfInvalid(nameof(flag));

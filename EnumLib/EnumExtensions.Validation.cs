@@ -1,6 +1,9 @@
 ﻿using System;
 
 namespace System {
+	/// <summary>
+	/// Provides utility methods on <see cref="Enum" /> values.
+	/// </summary>
 	public static partial class EnumExtensions {
 		/// <summary>
 		/// Throws an exception if the enum value contains an invalid value.
@@ -9,8 +12,8 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum to test.</param>
 		/// <param name="name">The formal name of the parameter to propagate in the exception.</param>
-		/// <exception cref="System.ArgumentException"><paramref name="@this"/> contains a value not defined by the enum.</exception>
-		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
+		/// <exception cref="System.ArgumentException"><paramref name="this"/> contains a value not defined by the enum.</exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="this"/> is null.</exception>
 		public static void ThrowIfInvalid(this Enum @this, string name = null) {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(name);
 			if (!HasValidValue(@this)) throw new ArgumentException("Must have a valid value", name);
@@ -23,7 +26,7 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum to test.</param>
 		/// <returns>true if the enum value is consistent with the enum's definition, false otherwise.</returns>
-		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="this"/> is null.</exception>
 		public static bool HasValidValue(this Enum @this) {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			Type enumType = @this.GetType();
@@ -42,7 +45,7 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum to test.</param>
 		/// <returns>true if the <see cref="System.Enum"/> has <see cref="FlagsAttribute"/>.</returns>
-		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="this"/> is null.</exception>
 		public static bool IsFlagsType(this Enum @this) {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			return HasFlags(@this.GetType());
@@ -53,8 +56,8 @@ namespace System {
 		/// </summary>
 		/// <param name="this">The enum type to test.</param>
 		/// <returns>true if the <see cref="System.Type"/> has <see cref="FlagsAttribute"/>.</returns>
-		/// <exception cref="System.ArgumentException"><paramref name="@this"/> is not an enum type.</exception>
-		/// <exception cref="System.ArgumentNullException"><paramref name="@this"/> is null.</exception>
+		/// <exception cref="System.ArgumentException"><paramref name="this"/> is not an enum type.</exception>
+		/// <exception cref="System.ArgumentNullException"><paramref name="this"/> is null.</exception>
 		public static bool IsFlagsType(this Type @this) {
 			if (object.ReferenceEquals(@this, null)) throw new ArgumentNullException(nameof(@this));
 			if (!@this.IsEnum) throw new ArgumentException("Must be an enum type", nameof(@this));

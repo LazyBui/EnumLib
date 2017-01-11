@@ -7,6 +7,10 @@ using System.Linq;
 using System.Reflection;
 
 namespace System {
+	/// <summary>
+	/// Provides utility methods on enum types.
+	/// </summary>
+	/// <typeparam name="TValue">The type of the enum.</typeparam>
 	public static class EnumExt<TValue> where TValue : struct, IComparable {
 		private class EnumValue {
 			public TValue Value { get; private set; }
@@ -823,7 +827,6 @@ namespace System {
 		/// Accepts both integer formats in string form ([-+][digits]) or names.
 		/// </summary>
 		/// <param name="value">The string representation to convert.</param>
-		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <param name="result">The enum value to initialize based on the parse rules.</param>
 		/// <returns>true if the enum value is successfully parsed, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is blank or whitespace-only.</exception>
@@ -857,7 +860,6 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The string representation to convert.</param>
 		/// <param name="ignoreCase">Indicates whether case should be ignored in conversion.</param>
-		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <param name="result">The enum value to initialize based on the parse rules.</param>
 		/// <returns>true if the enum value is successfully parsed, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is blank or whitespace-only.</exception>

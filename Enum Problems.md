@@ -1,7 +1,7 @@
 This is a full list of the problems I'm aware of with .NET enums, the problems the problems introduce, and how this library does or doesn't address them.
 
 1. Flags are conflated with plain enums, even though they're very distinct concepts.
-	This causes many problems since you can use them both precisely the same way even though they should have completely separate APIs. It makes no sense to or a regular enum, for example, but it must be there to support flags. The library cannot address this problem because it's fundamental to .NET, but the library will perform type checking to throw an exception if flags operations are being performed on non-flags enums or non-flags operations are being performed on flags enums.
+	This causes many problems since you can use them both precisely the same way even though they should have completely separate APIs. It makes no sense to perform a bitwise or upon a regular enum, for example, but it must be there to support flags. The library cannot address this problem because it's fundamental to .NET, but the library will perform type checking to throw an exception if flags operations are being performed on non-flags enums or non-flags operations are being performed on flags enums.
 
 2. Enums of any kind are not type safe.
 	+ They do not force their values to be consistent with the definition of an enum. For example, you can do `(MyEnum)(-2)`. This is invalid on the vast majority of enums. However, .NET will accept this with no issues. This introduces two problems.
