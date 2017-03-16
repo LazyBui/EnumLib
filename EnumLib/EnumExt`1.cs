@@ -96,12 +96,14 @@ namespace System {
 				ulong maxNegativeValue = ulong.MinValue;
 				ulong minNegativeValue = ulong.MaxValue;
 				bool anyPositive = false;
+				bool anyNonZero = false;
 				foreach (var value in sEnumValueCache.Value) {
 					if (value.Underlying == 0) {
 						sZeroValue = value.Value;
 					}
 					else if (value.Underlying < 0x8000000000000000UL) {
 						anyPositive = true;
+						anyNonZero = true;
 						if (value.Underlying > maxPositiveValue) {
 							maxPositiveValue = value.Underlying;
 						}
@@ -110,6 +112,7 @@ namespace System {
 						}
 					}
 					else {
+						anyNonZero = true;
 						if (value.Underlying > maxNegativeValue) {
 							maxNegativeValue = value.Underlying;
 						}
@@ -119,13 +122,15 @@ namespace System {
 					}
 				}
 
-				if (!anyPositive) {
-					sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minNegativeValue).Value;
-					sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxNegativeValue).Value;
-				}
-				else {
-					sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minNegativeValue).Value;
-					sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxPositiveValue).Value;
+				if (anyNonZero) {
+					if (!anyPositive) {
+						sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minNegativeValue).Value;
+						sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxNegativeValue).Value;
+					}
+					else {
+						sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minNegativeValue).Value;
+						sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxPositiveValue).Value;
+					}
 				}
 
 				if (sIsFlagsType) {
@@ -140,11 +145,13 @@ namespace System {
 			else {
 				ulong maxValue = ulong.MinValue;
 				ulong minValue = ulong.MaxValue;
+				bool anyNonZero = false;
 				foreach (var value in sEnumValueCache.Value) {
 					if (value.Underlying == 0) {
 						sZeroValue = value.Value;
 					}
 					else {
+						anyNonZero = true;
 						if (value.Underlying > maxValue) {
 							maxValue = value.Underlying;
 						}
@@ -154,8 +161,10 @@ namespace System {
 					}
 				}
 
-				sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minValue).Value;
-				sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxValue).Value;
+				if (anyNonZero) {
+					sMinValue = sEnumValueCache.Value.First(v => v.Underlying == minValue).Value;
+					sMaxValue = sEnumValueCache.Value.First(v => v.Underlying == maxValue).Value;
+				}
 
 				if (sIsFlagsType) {
 					maxValue = 0;
@@ -183,8 +192,8 @@ namespace System {
 		private static Type sEnumType = null;
 		private static Type sUnderlying = null;
 		private static TValue? sZeroValue = null;
-		private static TValue sMaxValue;
-		private static TValue sMinValue;
+		private static TValue? sMaxValue = null;
+		private static TValue? sMinValue = null;
 		private static TValue sMaxFlagsValue;
 		private static bool sIsFlagsType = false;
 		private static bool sIsSignedUnderlying = false;
@@ -193,46 +202,44 @@ namespace System {
 		/// Determines whether the generic type is an enum type with the <see cref="System.FlagsAttribute"/>.
 		/// </summary>
 		/// <returns>true if the <see cref="System.Enum"/> has <see cref="FlagsAttribute"/>, false otherwise.</returns>
-		public static bool IsFlagsType {
-			get { return sIsFlagsType; }
-		}
+		public static bool IsFlagsType => sIsFlagsType;
 
 		/// <summary>
 		/// Returns the count of enum members.
 		/// </summary>
-		public static int Count {
-			get { return sEnumValueCache.Value.Count; }
-		}
+		public static int Count => sEnumValueCache.Value.Count;
 
 		/// <summary>
 		/// If present, will get the explicit zero enum member.
 		/// </summary>
-		public static TValue? ZeroValue {
-			get { return sZeroValue; }
-		}
+		public static TValue? ZeroValue => sZeroValue;
+
+		/// <summary>
+		/// Indicates whether an explicit zero enum member exists.
+		/// </summary>
+		public static bool HasZeroValue => sZeroValue.HasValue;
 
 		/// <summary>
 		/// Gets either the explicit zero enum member or the 0 value for the enum.
 		/// </summary>
-		public static TValue DefaultValue {
-			get { return sZeroValue ?? default(TValue); }
-		}
+		public static TValue DefaultValue => sZeroValue ?? default(TValue);
 
 		/// <summary>
 		/// Gets the largest value non-0 value in the enum.
 		/// In the case where the enum has no values, the value will be 0.
 		/// </summary>
-		public static TValue MaxValue {
-			get { return sMaxValue; }
-		}
+		public static TValue MaxValue => sMaxValue ?? default(TValue);
 
 		/// <summary>
 		/// Gets the smallest non-0 value in the enum.
 		/// In the case where the enum has no values, the value will be 0.
 		/// </summary>
-		public static TValue MinValue {
-			get { return sMinValue; }
-		}
+		public static TValue MinValue => sMinValue ?? default(TValue);
+
+		/// <summary>
+		/// Indicates whether non-zero enum members exist.
+		/// </summary>
+		public static bool HasNonZeroValues => sMinValue.HasValue;
 
 		/// <summary>
 		/// Gets a value with all flags in the enum set.

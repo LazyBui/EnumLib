@@ -15,6 +15,9 @@ namespace EnumLib.Tests {
 			Assert.ThrowsExact<TypeInitializationException>(() => EnumExt<float>.GetNames());
 			Assert.ThrowsExact<TypeInitializationException>(() => EnumExt<Guid>.GetNames());
 			Assert.ThrowsExact<TypeInitializationException>(() => EnumExt<DateTime>.GetNames());
+			Assert.DoesNotThrow(() => EnumExt<EnumNoneOnly>.GetNames());
+			Assert.DoesNotThrow(() => EnumExt<EnumNoneOnlyByte>.GetNames());
+			Assert.DoesNotThrow(() => EnumExt<EnumNoneOnlyFlags>.GetNames());
 			Assert.DoesNotThrow(() => EnumExt<EnumVanilla>.GetNames());
 			Assert.DoesNotThrow(() => EnumExt<EnumSimpleFlags>.GetNames());
 			Assert.DoesNotThrow(() => EnumExt<EnumComboFlags>.GetNames());
