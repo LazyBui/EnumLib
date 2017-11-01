@@ -19,8 +19,10 @@ namespace EnumLib.Tests {
 			Assert.DoesNotThrow(() => EnumExt<EnumNoneOnlyByte>.GetNames());
 			Assert.DoesNotThrow(() => EnumExt<EnumNoneOnlyFlags>.GetNames());
 			Assert.DoesNotThrow(() => EnumExt<EnumVanilla>.GetNames());
+			Assert.DoesNotThrow(() => EnumExt<EnumMemberCase>.GetNames());
 			Assert.DoesNotThrow(() => EnumExt<EnumSimpleFlags>.GetNames());
 			Assert.DoesNotThrow(() => EnumExt<EnumComboFlags>.GetNames());
+			Assert.DoesNotThrow(() => EnumExt<EnumNoValues>.GetNames());
 		}
 
 		[TestMethod]
@@ -72,6 +74,8 @@ namespace EnumLib.Tests {
 			Assert.DoesNotThrow(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid((EnumComboOnlyFlags)(1 << 0 | 1 << 2)));
 			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid((EnumComboOnlyFlags)ushort.MaxValue));
 			Assert.DoesNotThrow(() => EnumExt<EnumComboOnlyFlags>.ThrowIfInvalid(0));			
+
+			Assert.ThrowsExact<ArgumentException>(() => EnumExt<EnumNoValues>.ThrowIfInvalid(0));
 		}
 
 		[TestMethod]
@@ -274,6 +278,12 @@ namespace EnumLib.Tests {
 
 			Assert.DoesNotThrow(() => result = EnumExt<EnumComboOnlyFlags>.GetUnderlyingType());
 			Assert.True(result == typeof(int));
+
+			Assert.DoesNotThrow(() => result = EnumExt<EnumBackedUInt8>.GetUnderlyingType());
+			Assert.True(result == typeof(byte));
+
+			Assert.DoesNotThrow(() => result = EnumExt<EnumBackedInt16>.GetUnderlyingType());
+			Assert.True(result == typeof(short));
 		}
 
 		[TestMethod]
@@ -313,6 +323,7 @@ namespace EnumLib.Tests {
 			Assert.Equal(EnumExt<EnumVanillaDuplicate>.Count, 4);
 			Assert.Equal(EnumExt<EnumSimpleFlags>.Count, 5);
 			Assert.Equal(EnumExt<EnumComboFlags>.Count, 5);
+			Assert.Equal(EnumExt<EnumNoValues>.Count, 0);
 		}
 
 		[TestMethod]
@@ -344,6 +355,11 @@ namespace EnumLib.Tests {
 			Assert.ThrowsExact<InvalidOperationException>(() => { var x = EnumExt<EnumVanilla>.MaxFlagsValue; });
 			Assert.Equal(EnumExt<EnumSimpleFlags>.MaxFlagsValue, EnumSimpleFlags.BitOne | EnumSimpleFlags.BitTwo | EnumSimpleFlags.BitThree | EnumSimpleFlags.BitFour);
 			Assert.Equal(EnumExt<EnumComboFlags>.MaxFlagsValue, EnumComboFlags.BitsOneTwoThree);
+
+			Assert.Equal(EnumExt<EnumNoValues>.MinValue, default(EnumNoValues));
+			Assert.Equal(EnumExt<EnumNoValues>.MaxValue, default(EnumNoValues));
+			Assert.False(EnumExt<EnumNoValues>.HasZeroValue);
+			Assert.Equal(EnumExt<EnumNoValues>.DefaultValue, default(EnumNoValues));
 		}
 
 		[TestMethod]
@@ -1304,6 +1320,19 @@ namespace EnumLib.Tests {
 			Assert.DoesNotThrow(() => negativeResult = EnumExt<EnumWithNegativeValues>.Parse("-22"));
 			Assert.True(negativeResult == EnumWithNegativeValues.Middle);
 			Assert.ThrowsExact<FormatException>(() => negativeResult = EnumExt<EnumWithNegativeValues>.Parse("-23"));
+
+			var trickyResult = EnumMemberCase.None;
+			Assert.DoesNotThrow(() => trickyResult = EnumExt<EnumMemberCase>.Parse("a"));
+			Assert.True(trickyResult == EnumMemberCase.a);
+
+			Assert.DoesNotThrow(() => trickyResult = EnumExt<EnumMemberCase>.Parse("A"));
+			Assert.True(trickyResult == EnumMemberCase.A);
+
+			Assert.ThrowsExact<AmbiguousEnumException>(() => trickyResult = EnumExt<EnumMemberCase>.Parse("a", true));
+
+			var noValuesResult = default(EnumNoValues);
+			Assert.ThrowsExact<FormatException>(() => noValuesResult = EnumExt<EnumNoValues>.Parse("None"));
+			Assert.ThrowsExact<FormatException>(() => noValuesResult = EnumExt<EnumNoValues>.Parse("0"));
 		}
 
 		[TestMethod]
@@ -1418,6 +1447,24 @@ namespace EnumLib.Tests {
 			Assert.DoesNotThrow(() => result = EnumExt<EnumWithNegativeValues>.TryParse("-23", out negativeResult));
 			Assert.False(result);
 			Assert.True(negativeResult == default(EnumWithNegativeValues));
+
+			var trickyResult = EnumMemberCase.None;
+			Assert.DoesNotThrow(() => result = EnumExt<EnumMemberCase>.TryParse("a", out trickyResult));
+			Assert.True(result);
+			Assert.True(trickyResult == EnumMemberCase.a);
+
+			Assert.DoesNotThrow(() => result = EnumExt<EnumMemberCase>.TryParse("A", out trickyResult));
+			Assert.True(result);
+			Assert.True(trickyResult == EnumMemberCase.A);
+
+			Assert.ThrowsExact<AmbiguousEnumException>(() => result = EnumExt<EnumMemberCase>.TryParse("a", true, out trickyResult));
+
+			var noValuesResult = default(EnumNoValues);
+			Assert.DoesNotThrow(() => result = EnumExt<EnumNoValues>.TryParse("None", out noValuesResult));
+			Assert.False(result);
+
+			Assert.DoesNotThrow(() => result = EnumExt<EnumNoValues>.TryParse("0", out noValuesResult));
+			Assert.False(result);
 		}
 
 		[TestMethod]

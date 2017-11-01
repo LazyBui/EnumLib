@@ -75,6 +75,9 @@ namespace EnumLib.Tests {
 
 			EnumComboOnlyFlags testComboOnlyFlags5 = (EnumComboOnlyFlags)(1 << 3);
 			Assert.ThrowsExact<ArgumentException>(() => testComboOnlyFlags5.ThrowIfInvalid());
+
+			EnumNoValues testNoValues = default(EnumNoValues);
+			Assert.ThrowsExact<ArgumentException>(() => testNoValues.ThrowIfInvalid());
 		}
 
 		[TestMethod]
@@ -427,6 +430,10 @@ namespace EnumLib.Tests {
 			Assert.ThrowsExact<OverflowException>(() => value = EnumVanilla.Huge.As<ushort>());
 			Assert.ThrowsExact<OverflowException>(() => value = EnumVanilla.Huge.As<short>());
 			Assert.ThrowsExact<OverflowException>(() => value = ((EnumVanilla)(-1)).As<ushort>());
+
+			value = 0;
+			Assert.DoesNotThrow(() => value = default(EnumNoValues).As<byte>());
+			Assert.Equal(value, 0);
 		}
 	}
 }

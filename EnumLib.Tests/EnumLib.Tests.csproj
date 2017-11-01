@@ -56,9 +56,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Enums\EnumNoValues.cs" />
     <Compile Include="Enums\EnumNoneOnlyByte.cs" />
     <Compile Include="Enums\EnumNoneOnlyFlags.cs" />
     <Compile Include="Enums\EnumNoneOnly.cs" />
+    <Compile Include="Enums\EnumMemberCase.cs" />
     <Compile Include="Enums\EnumWithNegativeValues.cs" />
     <Compile Include="IEnumerableExtensionsTest.cs" />
     <Compile Include="Enums\EnumBackedInt64.cs" />

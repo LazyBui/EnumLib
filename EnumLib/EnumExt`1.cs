@@ -175,6 +175,14 @@ namespace System {
 					sMaxFlagsValue = (TValue)Enum.ToObject(sEnumType, maxValue);
 				}
 			}
+
+			var strings = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+			foreach (var value in sEnumValueCache.Value) {
+				if (!strings.Add(value.Name)) {
+					sHasDuplicateCaseInsensitiveStrings = true;
+					break;
+				}
+			}
 		}
 
 		private static ReadOnlyCollection<EnumValue> ProduceValues() {
@@ -197,6 +205,7 @@ namespace System {
 		private static TValue sMaxFlagsValue;
 		private static bool sIsFlagsType = false;
 		private static bool sIsSignedUnderlying = false;
+		private static bool sHasDuplicateCaseInsensitiveStrings = false;
 
 		/// <summary>
 		/// Determines whether the generic type is an enum type with the <see cref="System.FlagsAttribute"/>.
@@ -306,7 +315,7 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The value to retrieve information for.</param>
 		/// <returns>Information relating to a specific enum value.</returns>
-		/// <exception cref="System.AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
+		/// <exception cref="AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is not a valid enum value.</exception>
 		public static EnumMemberInfo GetInfo(TValue value) {
 			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
@@ -321,7 +330,7 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The enum value to retrieve a <see cref="System.ComponentModel.DescriptionAttribute"/> for.</param>
 		/// <returns>null if no <see cref="System.ComponentModel.DescriptionAttribute"/> is present on the enum member, the string value associated to it otherwise.</returns>
-		/// <exception cref="System.AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
+		/// <exception cref="AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is not a valid enum value.</exception>
 		public static string GetDescription(TValue value) {
 			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
@@ -335,7 +344,7 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The enum value to retrieve text for.</param>
 		/// <returns>The enum member name if no <see cref="System.ComponentModel.DescriptionAttribute"/> is present on the enum member, the string value associated to it otherwise.</returns>
-		/// <exception cref="System.AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
+		/// <exception cref="AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is not a valid enum value.</exception>
 		public static string GetText(TValue value) {
 			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
@@ -350,7 +359,7 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The enum value to retrieve the name of.</param>
 		/// <returns>The enum member name as a string.</returns>
-		/// <exception cref="System.AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
+		/// <exception cref="AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is not a valid enum value.</exception>
 		public static string GetName(TValue value) {
 			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
@@ -389,7 +398,7 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The enum member to retrieve the attributes from.</param>
 		/// <returns>All of the custom attributes on the enum member.</returns>
-		/// <exception cref="System.AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
+		/// <exception cref="AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is not a valid enum value.</exception>
 		public static IEnumerable<Attribute> GetAttributes(TValue value) {
 			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
@@ -403,7 +412,7 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The enum member to retrieve the attributes from.</param>
 		/// <returns>All of the custom attributes of the specified type on the enum member.</returns>
-		/// <exception cref="System.AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
+		/// <exception cref="AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is not a valid enum value.</exception>
 		public static IEnumerable<TAttribute> GetAttributes<TAttribute>(TValue value) where TAttribute : Attribute {
 			var result = sEnumValueCache.Value.Where(v => v.Value.Equals(value));
@@ -417,7 +426,7 @@ namespace System {
 		/// </summary>
 		/// <param name="value">The enum member to retrieve the attributes from.</param>
 		/// <returns>null if a custom attribute of the specified type is not found, the attribute value otherwise.</returns>
-		/// <exception cref="System.AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
+		/// <exception cref="AmbiguousEnumException"><paramref name="value"/> refers to more than one enum member by value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is not a valid enum value.</exception>
 		/// <exception cref="System.Reflection.AmbiguousMatchException">There are multiple attributes of type <typeparamref name="TAttribute"/> associated to <paramref name="value"/>.</exception>
 		public static TAttribute GetAttribute<TAttribute>(TValue value) where TAttribute : Attribute {
@@ -660,8 +669,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value based on the parse rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> is blank or whitespace-only.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> is blank or whitespace-only.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException"><paramref name="value"/> is null.</exception>
 		/// <exception cref="System.FormatException"><paramref name="value"/> was not successfully parsed.</exception>
@@ -680,9 +689,10 @@ namespace System {
 		/// <param name="ignoreCase">Indicates whether case should be ignored in conversion.</param>
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value based on the parse rules.</returns>
+		/// <exception cref="AmbiguousEnumException"><paramref name="ignoreCase"/> is specified and multiple enum members match the specified value.</exception>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> is blank or whitespace-only.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> is blank or whitespace-only.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException"><paramref name="value"/> is null.</exception>
 		/// <exception cref="System.FormatException"><paramref name="value"/> was not successfully parsed.</exception>
@@ -700,8 +710,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(sbyte value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -717,8 +727,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(short value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -734,8 +744,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(int value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -751,8 +761,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(long value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -768,8 +778,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(byte value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -785,8 +795,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(ushort value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -802,8 +812,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(uint value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -819,8 +829,8 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <returns>An enum value if successfully casted based on the cast rules.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		/// <exception cref="System.InvalidCastException"><paramref name="value"/> was not successfully casted to an enum value.</exception>
 		public static TValue Cast(ulong value, InvalidEnumPolicy policy = InvalidEnumPolicy.Disallow) {
@@ -852,8 +862,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the parse rules.</param>
 		/// <returns>true if the enum value is successfully parsed, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> is blank or whitespace-only.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> is blank or whitespace-only.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException"><paramref name="value"/> is null.</exception>
 		/// <exception cref="System.InvalidOperationException"><paramref name="value"/> contains flags but the enum is not a <see cref="System.FlagsAttribute"/> enum.</exception>
@@ -869,6 +879,7 @@ namespace System {
 		/// <param name="ignoreCase">Indicates whether case should be ignored in conversion.</param>
 		/// <param name="result">The enum value to initialize based on the parse rules.</param>
 		/// <returns>true if the enum value is successfully parsed, false otherwise.</returns>
+		/// <exception cref="AmbiguousEnumException"><paramref name="ignoreCase"/> is specified and multiple enum members match the specified value.</exception>
 		/// <exception cref="System.ArgumentException"><paramref name="value"/> is blank or whitespace-only.</exception>
 		/// <exception cref="System.ArgumentNullException"><paramref name="value"/> is null.</exception>
 		/// <exception cref="System.InvalidOperationException"><paramref name="value"/> contains flags but the enum is not a <see cref="System.FlagsAttribute"/> enum.</exception>
@@ -885,9 +896,10 @@ namespace System {
 		/// <param name="policy">Indicates whether invalid integral values should be returned in enum form or should be an error.</param>
 		/// <param name="result">The enum value to initialize based on the parse rules.</param>
 		/// <returns>true if the enum value is successfully parsed, false otherwise.</returns>
+		/// <exception cref="AmbiguousEnumException"><paramref name="ignoreCase"/> is specified and multiple enum members match the specified value.</exception>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> is blank or whitespace-only.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> is blank or whitespace-only.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException"><paramref name="value"/> is null.</exception>
 		/// <exception cref="System.InvalidOperationException"><paramref name="value"/> contains flags but the enum is not a <see cref="System.FlagsAttribute"/> enum.</exception>
@@ -935,32 +947,59 @@ namespace System {
 			string[] values = value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 			if (values.Length > 1 && !sIsFlagsType) throw new InvalidOperationException("Must be a flags enum type to parse multiple values");
 
-			ulong resultValue = 0;
-			bool foundAny = false;
+			var found = new List<EnumValue>(Count);
 			for (int i = 0; i < values.Length; i++) {
 				string v = values[i].Trim();
 				foreach (var entry in sEnumValueCache.Value) {
 					if (string.Compare(entry.Name, v, ignoreCase) == 0) {
-						if (values.Length == 1) {
+						found.Add(entry);
+						if (values.Length == 1 && (!sHasDuplicateCaseInsensitiveStrings || !ignoreCase)) {
+							// If we're only looking for one value (which may be a flags value or a non-flags value)
+							// We can exit early assuming that case is irrelevant to the result or we are factoring case, since there is no possibility for dupes
 							result = entry.Value;
 							return true;
 						}
-						resultValue |= entry.Underlying;
-						foundAny = true;
 					}
 				}
 			}
 
-			if (!foundAny) {
+			if (!found.Any()) {
 				// Our string doesn't match any enum members and we don't have a valid integer representation
 				result = default(TValue);
 				return false;
 			}
 
-			// At this point, we have a flags enumeration and a valid integer
-			// Only thing that could be wrong now is an ambiguous cast, which should throw
-			result = Cast(resultValue, InvalidEnumPolicy.Allow);
-			return true;
+			if (sIsFlagsType) {
+				// At this point, we have a flags enumeration and a valid set of flags
+
+				// We may need to check ambiguity
+				if (ignoreCase && sHasDuplicateCaseInsensitiveStrings) {
+					var hashes = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+					foreach (var entry in found) {
+						if (!hashes.Add(entry.Name)) {
+							// We have a collision, the only thing we can do in this case is throw
+							throw new AmbiguousEnumException();
+						}
+					}
+				}
+
+				// If we have no ambiguity of the member names, we can straightforwardly cast here
+				result = (TValue)Enum.ToObject(
+					sEnumType,
+					found.Aggregate(0UL, (seed, v) => seed |= v.Underlying));
+				return true;
+			}
+
+			// At this point, we have have a string that may or may not represent more than one enum member
+			// A single result can get down here because it you may have an enum with (A, B, b) for example and be parsing for "a" case-insensitively
+			if (found.Count == 1) {
+				result = found[0].Value;
+				return true;
+			}
+
+			// We have multiple results that match and cannot disambiguate case-insensitively
+			// We must throw
+			throw new AmbiguousEnumException();
 		}
 
 		/// <summary>
@@ -1059,8 +1098,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(sbyte value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1075,8 +1114,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(short value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1091,8 +1130,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(int value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1107,8 +1146,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(long value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1123,8 +1162,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(byte value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1139,8 +1178,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(ushort value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1155,8 +1194,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(uint value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1171,8 +1210,8 @@ namespace System {
 		/// <param name="result">The enum value to initialize based on the casting rules.</param>
 		/// <returns>true if the enum value is successfully casted, false otherwise.</returns>
 		/// <exception cref="System.ArgumentException">
-		///.	<paramref name="value"/> exceeds the bounds of the underlying type.
-		///.	<paramref name="policy"/> contains a value not defined by the enum.
+		/// 	<paramref name="value"/> exceeds the bounds of the underlying type.
+		/// 	<paramref name="policy"/> contains a value not defined by the enum.
 		///</exception>
 		public static bool TryCast(ulong value, InvalidEnumPolicy policy, out TValue result) {
 			ThrowIfValueExceedsEnumBounds(value);
@@ -1294,8 +1333,7 @@ namespace System {
 			}
 
 			if (value == 0) {
-				var noneValue = sEnumValueCache.Value.FirstOrDefault(v => v.Underlying == 0);
-				if (object.ReferenceEquals(noneValue, null)) {
+				if (!HasZeroValue) {
 					if (policy == InvalidEnumPolicy.Disallow) {
 						result = default(TValue);
 						return false;
@@ -1305,7 +1343,7 @@ namespace System {
 					return true;
 				}
 
-				result = noneValue.Value;
+				result = sZeroValue.Value;
 				return true;
 			}
 
